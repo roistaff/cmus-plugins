@@ -23,6 +23,7 @@ RGB=$(magick /tmp/cover.jpg -resize 1x1 txt:- | grep -oP '\(\K[^)]*' | grep -v "
 # set album main color
 cmus-remote -C "set color_win_title_bg=$(rgb_to_term "${RGB}")"
 cmus-remote -C "set color_titleline_bg=$(rgb_to_term "${RGB}")"
+cmus-remote -C "set color_statusline_bg=$(rgb_to_term "${RGB}")"
 #get complementary color
 compl_rgb() {
 	IFS=',' read -r R G B <<< ${1}
@@ -38,3 +39,4 @@ echo "complemantary rgb color to $(rgb_to_term "$(compl_rgb "${RGB}")")"
 # set compl color to fg color
 cmus-remote -C "set color_titleline_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
 cmus-remote -C "set color_win_title_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
+cmus-remote -C "set color_statusline_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
