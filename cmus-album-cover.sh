@@ -20,6 +20,18 @@ function rgb_to_term() {
 }
 # get main color from album art
 RGB=$(magick /tmp/cover.jpg -resize 1x1 txt:- | grep -oP '\(\K[^)]*' | grep -v "%")
-TERMCOLOR=$(rgb_to_term "${RGB}")
-echo ${TERMCOLOR}
-cmus-remote -C "set color_titleline_bg=${TERMCOLOR}"
+# set bg color
+echo $(rgb_to_term "${RGB}")
+cmus-remote -C "set color_titleline_bg=$(rgb_to_term "${RGB}")"
+#get complementary color
+compl_rgb() {
+	IFS=',' read -r R G B <<< ${1}
+	R=$(expr 255 - ${R})
+	G=$(expr 255 - ${G})
+	B=$(expr 255 - ${B})
+	echo "${R},${G},${B}"
+}
+echo ${RGB}
+echo $(compl_rgb "${RGB}")
+# set compl color to fg color
+cmus-remote -C "set color_titleline_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
