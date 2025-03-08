@@ -42,3 +42,4 @@ cmus-remote -C "set color_titleline_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
 cmus-remote -C "set color_win_title_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
 cmus-remote -C "set color_statusline_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
 cmus-remote -C "set color_win_cur=$(rgb_to_term "${RGB}")"
+#feh --bg-scale /tmp/cover.jpg
