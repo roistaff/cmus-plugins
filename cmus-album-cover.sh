@@ -27,28 +27,33 @@ compl_rgb() {
 PLAYINGSONG="" 
 while true
 do
-#	echo "${PLAYINGSONG},playing"
-	CURRENTSONG=$(cmus-remote -C status | grep file | sed 's/file //')
-#	echo "${CURRENTSONG},current"
-	if [ "${PLAYINGSONG}" = "${CURRENTSONG}" ]; then
-		#echo "skip"
-		:
+	cmus=$(cmus-remote status)
+	if [ "${cmus}" = "cmus-remote: cmus is not running" ]
+		exit 0
 	else
-		PLAYINGSONG="${CURRENTSONG}"
-		ffmpeg -y -i  "${PLAYINGSONG}" -an -vcodec copy /tmp/cover.jpg > /dev/null 2>&1 </dev/null
-		RGB=$(magick /tmp/cover.jpg -resize 1x1 txt:- | grep -oP '\(\K[^)]*' | grep -v "%")
-		cmus-remote -C "set color_win_title_bg=$(rgb_to_term "${RGB}")"
-		cmus-remote -C "set color_titleline_bg=$(rgb_to_term "${RGB}")"
-		cmus-remote -C "set color_statusline_bg=$(rgb_to_term "${RGB}")"
+		echo "${PLAYINGSONG},playing"
+		CURRENTSONG=$(cmus-remote -C status | grep file | sed 's/file //')
+	#	echo "${CURRENTSONG},current"
+		if [ "${PLAYINGSONG}" = "${CURRENTSONG}" ]; then
+			#	#echo "skip"
+			:
+		else
+			PLAYINGSONG="${CURRENTSONG}"
+			ffmpeg -y -i  "${PLAYINGSONG}" -an -vcodec copy /tmp/cover.jpg > /dev/null 2>&1 </dev/null
+			RGB=$(magick /tmp/cover.jpg -resize 1x1 txt:- | grep -oP '\(\K[^)]*' | grep -v "%")
+			cmus-remote -C "set color_win_title_bg=$(rgb_to_term "${RGB}")"
+			cmus-remote -C "set color_titleline_bg=$(rgb_to_term "${RGB}")"
+			cmus-remote -C "set color_statusline_bg=$(rgb_to_term "${RGB}")"
 		#cmus-remote -C "set color_cmdline_bg=$(rgb_to_term "${RGB}")"#echo "main rgb color ${RGB}"
 #		echo "complementary rgb color $(compl_rgb "${RGB}")"
 #		echo "main rgb color to term color $(rgb_to_term "${RGB}")"
 #		echo "complemantary rgb color to $(rgb_to_term "$(compl_rgb "${RGB}")")"
 		# set compl color to fg color
-		cmus-remote -C "set color_titleline_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
-		cmus-remote -C "set color_win_title_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
-		cmus-remote -C "set color_statusline_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
-		cmus-remote -C "set color_win_cur=$(rgb_to_term "${RGB}")"
+			cmus-remote -C "set color_titleline_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
+			cmus-remote -C "set color_win_title_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
+			cmus-remote -C "set color_statusline_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
+			cmus-remote -C "set color_win_cur=$(rgb_to_term "${RGB}")"
 		#feh --bg-scale /tmp/cover.jpg
+		fi
 	fi
 done
