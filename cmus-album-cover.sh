@@ -27,11 +27,11 @@ compl_rgb() {
 PLAYINGSONG="" 
 while true
 do
-	cmus=$(cmus-remote status 2>&1)
-	if [ "${cmus}" = "cmus-remote: cmus is not running" ]; then
+	cmus=$(cmus-remote -C status 2>&1)
+	if [ "${cmus}" = "" ]; then
 		break
 	else
-		echo "${PLAYINGSONG},playing"
+#		echo "${PLAYINGSONG},playing"
 		CURRENTSONG=$(cmus-remote -C status | grep file | sed 's/file //')
 	#	echo "${CURRENTSONG},current"
 		if [ "${PLAYINGSONG}" = "${CURRENTSONG}" ]; then
