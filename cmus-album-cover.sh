@@ -22,9 +22,12 @@ compl_rgb() {
 	B=$(expr 255 - ${B})
 	echo "${R},${G},${B}"
 }
-#
-# get album cover
-PLAYINGSONG="" 
+PLAYINGSONG=""
+rgb_to_hex(){
+	IFS=',' read -r R G B <<< ${1}
+	hex=$(printf "#%02X%02X%02X\n" "$R" "$G" "$B")
+	echo "${hex}"
+}
 while true
 do
 	cmus=$(cmus-remote -C status 2>&1)
@@ -61,6 +64,15 @@ do
 			cmus-remote -C "set color_win_title_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
 			cmus-remote -C "set color_statusline_fg=$(rgb_to_term "$(compl_rgb "${RGB}")")"
 			cmus-remote -C "set color_win_cur=$(rgb_to_term "${RGB}")"
+			if pidof cava ; then
+				hex=$(rgb_to_hex "${RGB}")
+				echo ${hex}
+				sed -i "s/^foreground = .*/foreground = '${hex}'/" ~/.config/cava/config
+				#reload cava config
+				kill -SIGUSR2 $(echo $(pidof cava))
+			else
+				:
+			fi
 		#feh --bg-scale /tmp/cover.jpg
 		fi
 	fi
