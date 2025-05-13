@@ -1,7 +1,6 @@
 #!/bin/bash
 function rgb_to_term() {
     if [[ ! $1 =~ ^[0-9]+,[0-9]+,[0-9]+$ ]]; then
-        echo "Usage: rgb_to_term \"R,G,B\" (each 0-255)" >&2
         return 1
     fi
     IFS=',' read -r r g b <<< "$1"
@@ -9,10 +8,11 @@ function rgb_to_term() {
         echo "Error: RGB values must be in the range 0-255" >&2
         return 1
     fi
-    [[ $r -lt 75 ]] && r=0
-    [[ $g -lt 75 ]] && g=0
-    [[ $b -lt 75 ]] && b=0
-    echo $(( ((r-35)/40)*6*6 + ((g-35)/40)*6 + ((b-35)/40) + 16 ))
+    r_6=$(( ($r * 6) / 256 ))
+    g_6=$(( ($g * 6) / 256 ))
+    b_6=$(( ($b * 6) / 256 ))
+    ansi_code=$(( 16 + ($r_6 * 36) + ($g_6 * 6) + $b_6 ))
+    echo "${ansi_code}"
 }
 #get complementary color
 compl_rgb() {
@@ -41,7 +41,15 @@ do
 			PLAYINGSONG="${CURRENTSONG}"
 			ffmpeg -y -i  "${PLAYINGSONG}" -an -vcodec copy /tmp/cover.jpg > /dev/null 2>&1 </dev/null
 			RGB=$(magick /tmp/cover.jpg -resize 1x1 txt:- | grep -oP '\(\K[^)]*' | grep -v "%")
+			if echo ${RGB} | grep "," ;then
+				:
+			else
+				# gray scale
+				RGB=$(echo "${RGB},${RGB},${RGB}")
+			fi
 			cmus-remote -C "set color_win_title_bg=$(rgb_to_term "${RGB}")"
+			#echo $(rgb_to_term "${RGB}")
+			#echo "${RGB}"
 			cmus-remote -C "set color_titleline_bg=$(rgb_to_term "${RGB}")"
 			cmus-remote -C "set color_statusline_bg=$(rgb_to_term "${RGB}")"
 		#cmus-remote -C "set color_cmdline_bg=$(rgb_to_term "${RGB}")"#echo "main rgb color ${RGB}"
